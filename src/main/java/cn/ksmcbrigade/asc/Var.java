@@ -17,7 +17,7 @@ public class Var {
     private long timer = 12000L;  //ten minutes
 
     public Var(File file) throws IOException {
-        JsonObject object = JsonParser.parseString(FileUtils.readFileToString(file)).getAsJsonObject();
+        JsonObject object = JsonParser.parseString(FileUtils.readFileToString(file,"GBK")).getAsJsonObject();
         ArrayList<String> list = new ArrayList<>();
         object.getAsJsonArray("commands").forEach(c->list.add(c.getAsString()));
         this.timer = object.get("timer").getAsLong();

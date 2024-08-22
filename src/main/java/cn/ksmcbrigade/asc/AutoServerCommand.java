@@ -2,6 +2,7 @@ package cn.ksmcbrigade.asc;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.CommonComponents;
@@ -70,6 +71,24 @@ public class AutoServerCommand {
                 return 1;
             }
         }));
+
+        event.getDispatcher().register(Commands.literal("asc-config").requires(commandSourceStack -> commandSourceStack.hasPermission(4)).executes(context -> {
+            context.getSource().sendSystemMessage(Component.literal("Timer(ticks): "+var.getTimer()));
+            if(!var.commands.isEmpty()){
+                context.getSource().sendSystemMessage(Component.literal("Commands: "));
+                var.commands.forEach(c->context.getSource().sendFailure(Component.literal(c)));
+            }
+            return 0;
+        }).then(Commands.argument("timer", LongArgumentType.longArg(0)).executes(context -> {
+            var.setTimer(LongArgumentType.getLong(context,"timer"));
+            context.getSource().sendSystemMessage(CommonComponents.GUI_DONE);
+            try {
+                save(true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return 0;
+        })));
     }
 
     public static void save(boolean ex) throws IOException {
@@ -81,7 +100,7 @@ public class AutoServerCommand {
                 var.commands.forEach(array::add);
             }
             obj.add("commands",array);
-            FileUtils.writeStringToFile(config, obj.toString());
+            FileUtils.writeStringToFile(config, obj.toString(), "GBK");
         }
     }
 }
