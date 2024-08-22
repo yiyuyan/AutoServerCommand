@@ -3,8 +3,12 @@ package cn.ksmcbrigade.asc;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -51,6 +55,21 @@ public class AutoServerCommand {
         else{
             timerNow--;
         }
+    }
+
+    @SubscribeEvent
+    public static void command(RegisterCommandsEvent event){
+        event.getDispatcher().register(Commands.literal("asc-reload").requires(commandSourceStack -> commandSourceStack.hasPermission(4)).executes(context -> {
+            try {
+                var = new Var(config);
+                context.getSource().sendSystemMessage(CommonComponents.GUI_DONE);
+                return 0;
+            } catch (IOException e) {
+                e.printStackTrace();
+                context.getSource().sendFailure(Component.literal("error: "+e.getMessage()));
+                return 1;
+            }
+        }));
     }
 
     public static void save(boolean ex) throws IOException {
